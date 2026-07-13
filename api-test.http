@@ -1,0 +1,24 @@
+### Create a short URL
+POST http://localhost:8080/api/urls
+Content-Type: application/json
+
+{
+  "url": "https://example.com/some/very/long/path"
+}
+
+### Get by short code (replace with a real code from the response above)
+GET http://localhost:8080/api/urls/vhm6LY
+
+### 404 case
+GET http://localhost:8080/api/urls/nope99
+
+### Validation failure (expect 400)
+POST http://localhost:8080/api/urls
+Content-Type: application/json
+
+{
+  "url": "not a url"
+}
+
+### List all
+GET http://localhost:8080/api/urls
