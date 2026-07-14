@@ -1,0 +1,56 @@
+name: CI-CD-Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  validate-test-build-push:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: urlshortener
+          POSTGRES_USER: dev
+          POSTGRES_PASSWORD: dev
+        ports: ["5432:5432"]
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Grant Maven Wrapper Permission
+        run: chmod +x mvnw
+
+      - name: Run Unit Tests
+        run: ./mvnw test
+
+      - name: Login To Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/short-link:${{ github.sha }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/short-link:latest \
+            .
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/short-link:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/short-link:latest
