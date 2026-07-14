@@ -2,7 +2,7 @@ name: CI-CD-Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   validate-test-build-push:
@@ -15,10 +15,10 @@ jobs:
           POSTGRES_DB: urlshortener
           POSTGRES_USER: dev
           POSTGRES_PASSWORD: dev
-        ports: ["5432:5432"]
+        ports: [ "5432:5432" ]
       redis:
         image: redis:7
-        ports: ["6379:6379"]
+        ports: [ "6379:6379" ]
 
     steps:
       - name: Checkout Source Code
@@ -36,6 +36,9 @@ jobs:
 
       - name: Run Unit Tests
         run: ./mvnw test
+
+      - name: Build Spring Boot Application
+        run: ./mvnw clean package -DskipTests
 
       - name: Login To Docker Hub
         uses: docker/login-action@v3

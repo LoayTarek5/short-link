@@ -1,7 +1,2 @@
-target
-.git
-.idea
-*.iml
-.mvn/wrapper/*.jar
-docker-compose.yml
-api-test.http
+*
+!target/*.jar
